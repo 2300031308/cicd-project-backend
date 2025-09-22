@@ -1,23 +1,28 @@
-# Multi-stage Dockerfile for Java (Maven) backend
-# Stage 1: build the application (uses official Maven image)
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+# Use Java 21 as base
+FROM openjdk:21-jdk-slim
+
+# Set working directory
 WORKDIR /app
 
-# copy only what's needed for a fast build cache
-COPY pom.xml ./
-COPY src ./src
+# Copy Maven wrapper and pom.xml first (for caching)
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
 
-# Build the app and produce a fat/jar in target/
-RUN mvn -B clean package -DskipTests
+# Ensure mvnw is executable
+RUN chmod +x mvnw
 
-# Stage 2: runtime image
-FROM eclipse-temurin:17-jre-jammy
-WORKDIR /app
+# Download dependencies (will be cached unless pom.xml changes)
+RUN ./mvnw dependency:go-offline -B
 
-# Copy the built jar from the build stage. Use wildcard so filename differences won't break.
-COPY --from=build /app/target/*.jar app.jar
+# Copy the source code
+COPY src src
 
-# (Optional) expose port used by app — adjust if your app uses a different port
-EXPOSE 8080
+# Package the application (skip tests to speed up CI/CD)
+RUN ./mvnw -B clean package -DskipTests
 
+# Copy the built jar
+COPY target/backend.jar app.jar
+
+# Run the backend
 ENTRYPOINT ["java", "-jar", "app.jar"]
