@@ -2,17 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.4.4</version>
+        <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>com.klef.fsd</groupId>
     <artifactId>SDPProject</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+
+    <!-- REQUIRED FOR TOMCAT DEPLOYMENT -->
     <packaging>war</packaging>
 
     <properties>
@@ -20,20 +24,28 @@
     </properties>
 
     <dependencies>
-        <!-- Web + Servlet required for WAR -->
+
+        <!-- Spring MVC for web + servlet -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Tomcat must be provided when using WAR -->
+        <!-- Tomcat must be provided (since Tomcat is external) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- JPA -->
+        <!-- Servlet initializer for WAR deployment -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JPA / Hibernate -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -46,7 +58,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Mail -->
+        <!-- Spring mail -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
@@ -65,11 +77,15 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>
+        <finalName>SDPProject-0.0.1-SNAPSHOT</finalName>
+
         <plugins>
-            <!-- Package as WAR -->
+
+            <!-- MAKE REAL WAR FOR TOMCAT -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -78,7 +94,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Java compiler -->
+            <!-- Compile with JDK 21 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -87,6 +103,8 @@
                     <release>21</release>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
+
 </project>
